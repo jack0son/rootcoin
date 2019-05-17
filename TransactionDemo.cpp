@@ -63,8 +63,8 @@ void testTx(SignCase c) {
 	Transaction tx2(fromKey, toKey, amount);
 	Transaction tx(from.toBytes(), to.toBytes(), amount);
 
-	char *fromStr = new char[128];
-	char *toStr = new char[128];
+	char *fromStr = new char[129];
+	char *toStr = new char[129];
 	
 	// Transaction built from string keys
 	Transaction tx3(

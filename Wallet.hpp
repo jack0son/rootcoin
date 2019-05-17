@@ -1,11 +1,24 @@
 // Wallet API
 //
+// The Wallet is the User's interface to the blockchain.
+//
 // Implements all the basic features that would be expected of a wallet client. 
 //		-
 //
 //// //// //// //// //// //// //// //// //// //// //// //// //// ////
 
+/*
+ * Essentially, a hardened child key is is computed with hash(parent private key + index) 
+ * whereas a non-hardened child key is computed with hash(parent public key + index).
+ */
+
+
+// Wallet Implementation should:
+// -- use memory safe containers for function arguments (e.g. strings, vectors)
+
 #include<vector>
+#include<memory>
+#include<string>
 
 // Cryptolib components
 #include "Uint256.hpp";
@@ -14,28 +27,43 @@
 #include "Transaction.hpp";
 
 using std::vector;
+using std::string;
+
+struct Account {
+	PrivateKey priv;
+	PublicKey pub;
+}
 
 class Wallet {
 
 	Wallet();
-	Wallet(Account *accountList);
+	Wallet(vector<Account> *accountList);
 
 	/*--- Fields ---*/
 	public: Node *node;
-	public: Account *account;
+	public: vector<Account>::iterator accountIt;
 
 	/*--- Instance Members ---*/
 	private: vector<Account> accounts; 
+	private: Uint256 nonce;
 
 
 	/*--- Instance Methods ---*/ 
-	void createTransaction({... transaction params});
+	/* Transactions */
+	void createTransaction(PublicKey toKey, int amount);
+	void createTransaction(string toAddress, int amount);
 	void signTransaction(Transaction tx);
 	void publishTransaction(Transaction tx);
 
-	int getBalance(CurvePoint publicKey);
-
+	/* Account Management */
 	void createAccount();
+	int getBalance(CurvePoint publicKey);
+	void switchAccount();
+
+	/* --- Helper Methods ---*/
+	static bool isValidAddress(string address);
+
+	static const size_t ADDRESS_SIZE;
 
 };
 

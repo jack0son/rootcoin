@@ -18,18 +18,18 @@ void Utils::appendBytes(shared_ptr<Bytes> orig, const shared_ptr<Bytes> toAppend
 	orig->insert(orig->end(), tmp->begin(), tmp->end());
 }	
 
-/*void Utils::appendBytes(Bytes *orig, Bytes *toAppend) {
-	Bytes* tmp;
-	bool flag = false;
+Bytes asciiBytes(const char *str) {
+	return Bytes(str, str + std::strlen(str));
+}
 
-	if(orig == toAppend) {
-		tmp = new Bytes(toAppend);
-		flag = true;
-	} else {
-		tmp = toAppend;
+Bytes hexBytes(const char *str) {
+	Bytes result;
+	size_t length = std::strlen(str);
+	assert(length % 2 == 0);
+	for (size_t i = 0; i < length; i += 2) {
+		unsigned int temp;
+		std::sscanf(&str[i], "%02x", &temp);
+		result.push_back(static_cast<std::uint8_t>(temp));
 	}
-	orig->insert(orig->end(), tmp->begin(), tmp->end());
-
-	if(flag) 
-		delete(tmp);
-}	*/
+	return result;
+}

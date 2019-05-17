@@ -4,6 +4,8 @@
 #include <memory>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
+#include <cassert>
 
 using std::vector;
 using std::uint8_t;
@@ -16,6 +18,8 @@ typedef vector<uint8_t> Bytes;
 namespace Utils {
 	static void appendBytes(shared_ptr<Bytes> orig, const shared_ptr<Bytes> toAppend);
 	static char* intToHexStr(uint8_t &val);
+	static Bytes hexBytes(const char *str);
+	static Bytes asciiBytes(const char *str);
 	
 	template< typename B >
 	const char* hexify(B i) {

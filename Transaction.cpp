@@ -1,5 +1,4 @@
 #include "Transaction.hpp"
-#include<iostream>
 
 // Convention: constructors which map directly to member variables should use
 // longer names to give the prototype more clarity.
