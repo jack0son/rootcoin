@@ -26,7 +26,6 @@
 // Rootcoin tools
 #include "Utils.hpp"
 
-
 using std::uint8_t;
 using std::vector;
 using std::unique_ptr;
@@ -57,6 +56,8 @@ struct PublicKey {
 	PublicKey(const char* address);
 	PublicKey(const CurvePoint &cp);
 	Bytes toBytes() const;
+
+	bool operator ==(PublicKey &key);
 };
 
 class Transaction {
@@ -72,7 +73,7 @@ class Transaction {
 	Transaction(const Bytes &fromAddr, const Bytes &toAddr, int sendAmount);
 	Transaction(const char *fromAddr, const char *toAddr, int sendAmount);
 	Transaction(PublicKey &from, PublicKey &to, int sendAmount);
-	Transaction();
+	Transaction(); // @fix should never be used
 
 
 	/*--- Public instance methods ---*/
@@ -81,10 +82,10 @@ class Transaction {
 	// how to verify API isn't storing PK?
 	
 	// Verify transaction origin
-	public: bool verify(Signature sig) const; 
+	public: bool verify(Signature &sig) const; 
 	
-	// Create a transaction hash (message hash for transaction contents)
-	public: Sha256Hash hash() const;
+	// Calculate hash of serialized tx data (message hash for transaction contents)
+	public: Sha256Hash getHash() const;
 
 	
 	/*--- Helper methods ---*/

@@ -17,7 +17,7 @@ Transaction::Transaction() :
 Signature Transaction::sign(Uint256 privateKey) {
 //Signature Transaction::sign(Uint256 privateKey, Uint256 nonce = DEFAULT_NONCE) {
 	// 1. Create the message hash
-	const Sha256Hash txHash = hash();
+	const Sha256Hash txHash = getHash();
 
 	// msgHas
 	//	- prev transaction ("amount")
@@ -26,7 +26,7 @@ Signature Transaction::sign(Uint256 privateKey) {
 	Uint256 r, s; // cryptolib 
 
 	// 2. Call Ecdsa sign method
-	Ecdsa::sign(privateKey, txHash, nonce, r, s);	
+	Ecdsa::sign(privateKey, txHash, DEFAULT_NONCE, r, s);	
 	
 	// 3. Store and return results
 	Signature sig(r, s);
@@ -35,14 +35,14 @@ Signature Transaction::sign(Uint256 privateKey) {
 	return sig;
 }
 
-bool Transaction::verify(Signature sig) const {
+bool Transaction::verify(Signature &sig) const {
 	// 1. Create the message hash
-	const Sha256Hash txHash = Transaction::hash();
+	const Sha256Hash txHash = getHash();
 	// bool Ecdsa::verify(const CurvePoint &publicKey, const Sha256Hash &msgHash, const Uint256 &r, const Uint256 &s)
 	return Ecdsa::verify(fromKey.curvePoint, txHash, sig.r, sig.s); 
 }
 
-Sha256Hash Transaction::hash() const {
+Sha256Hash Transaction::getHash() const {
 	//Cryptolib expects array of uint8_t bytes
 	Sha256 txHasher;
 	// Appends message bytes to this ongoing hasher, and returns this object itself.
@@ -59,10 +59,9 @@ vector<uint8_t> Transaction::serialize() const {
 	// Specification of a rootcoint serialized transaction
 	vector<uint8_t> serial;
 	
-	serial.push_back((uint8_t) amount);
 	vector<uint8_t> keyBytes = toKey.toBytes();
 	serial.insert(serial.end(), keyBytes.begin(), keyBytes.end());
-	//Utils::appendBytes(&serial, &keyBytes);
+	serial.push_back((uint8_t) amount);
 
 	return serial;
 }
