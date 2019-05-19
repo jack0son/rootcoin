@@ -14,6 +14,10 @@ Transaction::Transaction(PublicKey &from, PublicKey &to, int sendAmount)
 Transaction::Transaction() :
 	fromKey(CurvePoint::ZERO), toKey(CurvePoint::ZERO), amount(0) {}
 
+Transaction::Transaction(const Transaction& t) :
+	fromKey(t.fromKey), toKey(t.toKey), amount(t.amount), 
+	signature(new Signature(*t.signature)) {}
+
 Signature Transaction::sign(Uint256 privateKey) {
 //Signature Transaction::sign(Uint256 privateKey, Uint256 nonce = DEFAULT_NONCE) {
 	// 1. Create the message hash
@@ -128,8 +132,9 @@ PublicKey::PublicKey(const CurvePoint &cp)
 PublicKey::PublicKey(const char* address)
 	: curvePoint(*Transaction::deserializeCurvePoint(address)) {}
 
-bool PublicKey::operator ==(PublicKey &key) {
-	if(curvePoint == key.curvePoint) return true;
+bool PublicKey::operator ==(const PublicKey &key) const {
+	if(curvePoint == key.curvePoint) 
+		return true;
 	return false;
 }
 

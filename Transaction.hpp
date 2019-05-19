@@ -32,6 +32,7 @@ using std::unique_ptr;
 
 typedef vector<uint8_t> Bytes;
 
+
 struct Signature {
 	Uint256 r; // output
 	Uint256 s; //
@@ -57,7 +58,7 @@ struct PublicKey {
 	PublicKey(const CurvePoint &cp);
 	Bytes toBytes() const;
 
-	bool operator ==(PublicKey &key);
+	bool operator ==(const PublicKey &key) const;
 };
 
 class Transaction {
@@ -66,7 +67,7 @@ class Transaction {
 		PublicKey fromKey;// sending address 
 		PublicKey toKey;  // recipient address
 		int amount;		// amount to send
-		std::shared_ptr<Signature> signature; // @fix why is this a pointer
+		std::unique_ptr<Signature> signature; // @fix why is this a pointer
 
 	
 	/*--- Constructors ---*/
@@ -74,6 +75,7 @@ class Transaction {
 	Transaction(const char *fromAddr, const char *toAddr, int sendAmount);
 	Transaction(PublicKey &from, PublicKey &to, int sendAmount);
 	Transaction(); // @fix should never be used
+	Transaction(const Transaction& transaction);
 
 
 	/*--- Public instance methods ---*/

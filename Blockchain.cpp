@@ -1,10 +1,13 @@
 #include "Blockchain.hpp"
 
-Block::Block() 
-	: {}
+using Utils::appendBytes;
+using Utils::appendBytesArr;
 
-Block::Block(vector<Transactions> txs, Uint256 a_nonce) 
-	: txList(txs), nonce(a_nonce) {}
+Block::Block() 
+	: myHash(NULL_HASH), prevHash(NULL_HASH) {}
+
+Block::Block(vector<Transaction> txs, Uint256 a_nonce, Uint256 a_soln) 
+	: myHash(NULL_HASH), prevHash(NULL_HASH), txList(txs), nonce(a_nonce), soln(a_soln) {}
 
 void Block::addTransaction(Transaction &tx) {
 	if(txList.size() < MAX_TX) {
@@ -17,31 +20,32 @@ void Block::addTransaction(Transaction &tx) {
 Sha256Hash Block::calcHash() {
 	// 1. Serialize block data
 	Bytes block;
-	Bytes* &block = &block
-	appendBytes(&block, &header);
-	appendBytesArr(&block, prevHash.value, Sha256Hash::HASH_LEN);
-	appendBytes(&block, Uint256Bytes(nonce));
-	appendBytes(&block, Uint256Bytes(soln));
+	
+	// Header
+	appendBytesArr(block, prevHash.value, Sha256Hash::HASH_LEN);
+	appendBytes(block, Utils::Uint256Bytes(nonce));
+	appendBytes(block, Utils::Uint256Bytes(soln));
 
-	Bytes txBytes;
-	appendBytes(&txBytes, &reward.serialize());
+	// Transactions
+	appendBytes(block, reward.serialize());
 	for(const auto &tx : txList) {
-		apppendBytes(&txBytes, &tx.serialize());
+		appendBytes(block, tx.serialize());
 	}
-
-	appendBytes(&block, &txBytes);
 
 	// 2. Compute hash
 	Sha256 blkHasher;
-	blkHasher.append(&block, block.size());
-
+	blkHasher.append(&block[0], block.size());
 	myHash = blkHasher.getHash();
 
 	return myHash;
 }
 
-Sha256Hash Block::getHash() {
+Sha256Hash Block::getHash() const {
 	return myHash;
+}
+
+Sha256Hash Block::getPrevHash() const {
+	return prevHash;
 }
 
 void Block::setHash(Sha256Hash previousBlockHash) {
@@ -52,7 +56,10 @@ void Block::setHash(Sha256Hash previousBlockHash) {
 //____________________________________________________________________
 //
 Blockchain::Blockchain() 
-	: {}
+	{}
+
+Blockchain::Blockchain(vector<Block> blockList) 
+	: blocks(blockList) {}
 
 bool Blockchain::addBlock(Block &block) {
 	// 1. Add link to chain
@@ -60,7 +67,7 @@ bool Blockchain::addBlock(Block &block) {
 
 	// 2. Validate block
 	if(isValidBlock(block)) {
-		blocks.push(block);
+		blocks.push_back(block);
 	} else {
 		return false;
 	}
@@ -69,11 +76,6 @@ bool Blockchain::addBlock(Block &block) {
 }
 
 bool Blockchain::isValidBlock(const Block &block) const {
-	// Serialize input data
-	// Use crypto library to produce sha-256 hash
-	
-	// @missing validate proof of work
-
 	// Block Size
 	if(block.txList.size() > Block::MAX_TX) {
 		return false;
@@ -82,36 +84,35 @@ bool Blockchain::isValidBlock(const Block &block) const {
 	// 1. Verify transactions
 	for(const auto &tx : block.txList) {
 		// Verify signature
-		if(!tx.verify(tx->signature)) {
+		if(!tx.verify(*tx.signature)) {
 			return false;
 		}
 
 		// Verify balance
-		if(amount < getAddressBalance(tx.address)) {
+		if(tx.amount <= getAddressBalance(tx.fromKey)) {
 			return false;
 		}
 
-		// Verify 
+		// @missing isValidAddress(tx.from );
 	}
 
-	// 2. Verify hash
-	// @missing
+	// @missing validate proof of work
 	
 	return true;
 }
 
-bool Blockchain::getAddressBalance(const PublicKey &address) {
+bool Blockchain::getAddressBalance(const PublicKey &address) const {
 	int deb = 0; 
 	int cred = 0; 
 
 	// 1. Add all sends
 	for(const auto &block : blocks) {
 		for(const auto &tx : block.txList) {
-			if(tx.from == address) {
+			if(tx.fromKey == address) {
 				deb += tx.amount;
 			}
 
-			if(tx.to == address) {
+			if(tx.toKey == address) {
 				cred += tx.amount;
 			}
 		}
@@ -123,21 +124,23 @@ bool Blockchain::getAddressBalance(const PublicKey &address) {
 //#include<unordered_map>	
 // Validate that each block correctly links to the previous.
 // @param sigs:		verify signature of each transaction
-int Blockchain::checkChainIntegrity(bool sigs) { 
+int Blockchain::checkChainIntegrity(bool sigs) const { 
 	//std::unordered_map<PublicKey, int> balances;
 
 	bool valid = true;
-	vector<Block>::iterator prev;
+	vector<Block>::const_iterator prev;
+	vector<Block>::const_iterator it;
+
 	// @fix check first block
-	for(vector<Block>::iterator it = blockchain.begin(); it != blockchain.end(); prev = it, ++it) {
+	for(it = blocks.begin(); it != blocks.end(); prev = it, ++it) {
 		// Validate block header
-		if(*it.prevHash != *prev.myHash) {
+		if(it->getPrevHash() != prev->getHash()) {
 			valid = false;
 		}
 
-		if(*it.myHash != *it.getHash()) {
+		/*if(it->myHash != it->getHash()) {
 			valid = false;
-		}
+		}*/
 
 		// Validate block
 		// Check that all transactions are valid
@@ -150,8 +153,8 @@ int Blockchain::checkChainIntegrity(bool sigs) {
 
 }
 
-const vector<Block>::iterator Blockchain::getTop() const {
-	vector<Block>::iterator last = blocks.end();
+const vector<Block>::const_iterator Blockchain::getTop() const {
+	vector<Block>::const_iterator last = blocks.end();
 	--last;
 	return last;
 }

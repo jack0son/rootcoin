@@ -1,33 +1,28 @@
 #include "Utils.hpp"
 
-char* Utils::intToHexStr(uint8_t &val) {
-	char *ch = new char[1];
-	ch[0] = 'c';
-	return ch;
-}
-
 void Utils::appendBytesArr(
-	shared_ptr<Bytes> &orig, 
+	Bytes &orig, 
 	const uint8_t *toAppend, 
 	const size_t size) 
 {
-	orig->insert(orig->end(), toAppend, toAppend + size);
+	orig.insert(orig.end(), toAppend, toAppend + size);
 }	
 
 	
 // @fix improper use of smart pointers
-void Utils::appendBytes(shared_ptr<Bytes> &orig, const shared_ptr<Bytes> &toAppend) {
-	shared_ptr<Bytes> tmp;
+void Utils::appendBytes(Bytes &orig, const Bytes &toAppend) {
+	Bytes tmp;
 
-	if(orig.get() == toAppend.get()) {
-		tmp = unique_ptr<Bytes>(new Bytes(toAppend->begin(), toAppend->end()));
+	// @fix does this reliably check if orig and toAppend refernce same vector?
+	if(&orig == &toAppend) {
+		tmp = Bytes(toAppend.begin(), toAppend.end());
 	} else {
 		tmp = toAppend;
 	}
-	orig->insert(orig->end(), tmp->begin(), tmp->end());
+	orig.insert(orig.end(), tmp.begin(), tmp.end());
 }	
 
-Bytes Utils::Uint256Bytes(Uint256 value) {
+Bytes Utils::Uint256Bytes(const Uint256 &value) {
 	Bytes bytes;
 	size_t size = Uint256::NUM_WORDS * 4;
 	uint8_t serial[size]; 
@@ -42,7 +37,7 @@ Bytes Utils::strBytes(const char *str) {
 	return Bytes(str, str + std::strlen(str));
 }
 
-Bytes hexBytes(const char *str) {
+Bytes Utils::hexBytes(const char *str) {
 	Bytes result;
 	size_t length = std::strlen(str);
 	assert(length % 2 == 0);

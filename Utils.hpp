@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef __UTILS__H_
+#define __UTILS__H_
+
 #include <vector>
 #include <memory>
 #include <iomanip>
@@ -18,12 +21,11 @@ typedef vector<uint8_t> Bytes;
 
 
 namespace Utils {
-	static void appendBytes(shared_ptr<Bytes> &orig, const shared_ptr<Bytes> &toAppend);
-	static void appendBytesArr(shared_ptr<Bytes> &orig, const uint8_t *toAppend, const size_t size);
-	static char* intToHexStr(uint8_t &val);
-	static Bytes hexBytes(const char *str);
-	static Bytes strBytes(const char *str);
-	static Bytes Uint256Bytes(Uint256 value);
+	 void appendBytes(Bytes &orig, const Bytes &toAppend);
+	 void appendBytesArr(Bytes &orig, const uint8_t *toAppend, const size_t size);
+	 Bytes hexBytes(const char *str);
+	 Bytes strBytes(const char *str);
+	 Bytes Uint256Bytes(const Uint256 &value);
 	
 	template< typename B >
 	const char* hexify(B i) {
@@ -40,3 +42,5 @@ namespace Utils {
 		//return buf.str().c_str();
 	}
 };
+
+#endif
