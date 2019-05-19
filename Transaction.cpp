@@ -14,7 +14,7 @@ Transaction::Transaction(PublicKey &from, PublicKey &to, int sendAmount)
 Transaction::Transaction() :
 	fromKey(CurvePoint::ZERO), toKey(CurvePoint::ZERO), amount(0) {}
 
-Signature Transaction::sign(Uint256 privateKey, Uint256 nonce) {
+Signature Transaction::sign(Uint256 privateKey) {
 //Signature Transaction::sign(Uint256 privateKey, Uint256 nonce = DEFAULT_NONCE) {
 	// 1. Create the message hash
 	const Sha256Hash txHash = hash();
@@ -85,7 +85,6 @@ vector<uint8_t> Transaction::serializeCurvePoint(CurvePoint cp) {
 	return address;
 }
 
-Uint256 Transaction::DEFAULT_NONCE = Uint256::ONE;
 
 unique_ptr<CurvePoint> Transaction::deserializeCurvePoint(const vector<uint8_t> bytes) {
 	// Specification of a rootcoint serialized public key
@@ -115,6 +114,8 @@ unique_ptr<CurvePoint> Transaction::deserializeCurvePoint(const char* curvePoint
 	return cp;
 }
 
+Uint256 Transaction::DEFAULT_NONCE = Uint256::ONE;
+
 Bytes PublicKey::toBytes() const {
 	return Transaction::serializeCurvePoint(curvePoint);
 }
@@ -128,6 +129,11 @@ PublicKey::PublicKey(const CurvePoint &cp)
 PublicKey::PublicKey(const char* address)
 	: curvePoint(*Transaction::deserializeCurvePoint(address)) {}
 
+bool PublicKey::operator ==(PublicKey &key) {
+	if(curvePoint == key.curvePoint) return true;
+	return false;
+}
+
 PrivateKey::PrivateKey(Uint256 val)
 	: value(val) {}
 
@@ -140,6 +146,10 @@ Bytes PrivateKey::toBytes() const {
 	key.insert(key.begin(), serial, serial + size);
 
 	return key;
+}
+
+const Uint256 PrivateKey::get() const {
+	return value;
 }
 
 Signature::Signature(Uint256& r, Uint256& s)

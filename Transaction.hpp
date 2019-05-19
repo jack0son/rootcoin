@@ -43,10 +43,11 @@ struct Signature {
 };
 
 struct PrivateKey {
-	Uint256 value;
+	const Uint256 value;
 
 	PrivateKey(const Uint256 val);
 	Bytes toBytes() const;
+	const Uint256 get() const;
 };
 
 struct PublicKey {
@@ -64,7 +65,7 @@ class Transaction {
 		PublicKey fromKey;// sending address 
 		PublicKey toKey;  // recipient address
 		int amount;		// amount to send
-		std::shared_ptr<Signature> signature; // 
+		std::shared_ptr<Signature> signature; // @fix why is this a pointer
 
 	
 	/*--- Constructors ---*/
@@ -76,7 +77,7 @@ class Transaction {
 
 	/*--- Public instance methods ---*/
 	// Calculate ECDSA signature
-	public: Signature sign(Uint256 privateKey, Uint256 nonce); 
+	public: Signature sign(Uint256 privateKey); 
 	// how to verify API isn't storing PK?
 	
 	// Verify transaction origin

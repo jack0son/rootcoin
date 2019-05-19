@@ -32,6 +32,9 @@ using std::string;
 struct Account {
 	PrivateKey priv;
 	PublicKey pub;
+
+	Account(string privKey);
+	Account(Uint256 privKey);
 }
 
 class Wallet {
@@ -41,7 +44,7 @@ class Wallet {
 
 	/*--- Fields ---*/
 	public: Node *node;
-	public: vector<Account>::iterator accountIt;
+	public: vector<Account>::iterator currentAcc; // what is the value of a null iterator
 
 	/*--- Instance Members ---*/
 	private: vector<Account> accounts; 
@@ -56,13 +59,16 @@ class Wallet {
 	void publishTransaction(Transaction tx);
 
 	/* Account Management */
+	void addAccount(Account &account);
 	void createAccount();
 	int getBalance(CurvePoint publicKey);
 	void switchAccount();
+	bool activeAccount();
 
 	/* --- Helper Methods ---*/
 	static bool isValidAddress(string address);
 
+	static const size_t KEY_SIZE;
 	static const size_t ADDRESS_SIZE;
 
 };
