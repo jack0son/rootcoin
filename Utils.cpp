@@ -37,7 +37,15 @@ Bytes Utils::strBytes(const char *str) {
 	return Bytes(str, str + std::strlen(str));
 }
 
-Bytes Utils::hexBytes(const char *str) {
+string Utils::bytesToStr(const Bytes &orig) {
+	string str = "";
+	for(auto &b : orig) {
+		str += hexify<uint8_t>(b);
+	}
+	return str;
+}
+
+Bytes Utils::hexStrToBytes(const char *str) {
 	Bytes result;
 	size_t length = std::strlen(str);
 	assert(length % 2 == 0);

@@ -21,49 +21,65 @@
 #include<string>
 
 // Cryptolib components
-#include "Uint256.hpp";
+#include "Uint256.hpp"
 
 // RootCoin lib
-#include "Transaction.hpp";
+#include "Transaction.hpp"
 
 using std::vector;
 using std::string;
 
 struct Account {
+	//private:
 	PrivateKey priv;
 	PublicKey pub;
 
 	Account(string privKey);
 	Account(Uint256 privKey);
-}
+};
+
+struct Node {
+	int dummy;
+
+	Node();
+	Node(Node&& other);
+};
 
 class Wallet {
 
+	/* --- Constructors --- */
+public:
 	Wallet();
-	Wallet(vector<Account> *accountList);
+	Wallet(vector<Account> &accountList);
 
 	/*--- Fields ---*/
-	public: Node *node;
-	public: vector<Account>::iterator currentAcc; // what is the value of a null iterator
+public:
+	Node node;
+	//const Node &node;
+	vector<Account>::iterator currentAcc; // what is the value of a null iterator
+
 
 	/*--- Instance Members ---*/
-	private: vector<Account> accounts; 
-	private: Uint256 nonce;
+private:
+	vector<Account> accounts; 
 
 
 	/*--- Instance Methods ---*/ 
 	/* Transactions */
-	void createTransaction(PublicKey toKey, int amount);
-	void createTransaction(string toAddress, int amount);
-	void signTransaction(Transaction tx);
+public:
+	Transaction createTransaction(PublicKey toKey, int amount);
+	Transaction createTransaction(string toAddress, int amount);
+	Signature signTransaction(Transaction tx);
 	void publishTransaction(Transaction tx);
 
+
 	/* Account Management */
-	void addAccount(Account &account);
-	void createAccount();
-	int getBalance(CurvePoint publicKey);
+	void addAccount(Account account);
+	Account createAccount();
+	int getBalance(const PublicKey &publicKey);
 	void switchAccount();
-	bool activeAccount();
+	bool hasAccount() const;
+
 
 	/* --- Helper Methods ---*/
 	static bool isValidAddress(string address);
@@ -72,22 +88,3 @@ class Wallet {
 	static const size_t ADDRESS_SIZE;
 
 };
-
-struct Account {
-	PrivateKey privateKey;
-	PublicKey publicKey;
-	int balance;
-
-	Uint256 getAddress();
-
-};
-
-struct PrivateKey {
-	Uint256 value;
-	// Other representations
-};
-
-struct PublicKey {
-	CurvePoint curvePoint;
-	// Other representations
-}

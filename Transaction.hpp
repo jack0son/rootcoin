@@ -10,11 +10,14 @@
 // Building a cryptocurrency from first principles
 // ROOTCoin
 
+#pragma once
+
 // transaction.hpp
 #include<vector>
 #include<cstring>
 #include<cassert>
 #include<memory>
+#include<string>
 
 // Cryptolib components
 #include "Uint256.hpp"
@@ -28,6 +31,7 @@
 
 using std::uint8_t;
 using std::vector;
+using std::string;
 using std::unique_ptr;
 
 typedef vector<uint8_t> Bytes;
@@ -46,6 +50,7 @@ struct PrivateKey {
 	const Uint256 value;
 
 	PrivateKey(const Uint256 val);
+	PrivateKey(const char* key);
 	Bytes toBytes() const;
 	const Uint256 get() const;
 };
@@ -57,6 +62,7 @@ struct PublicKey {
 	PublicKey(const char* address);
 	PublicKey(const CurvePoint &cp);
 	Bytes toBytes() const;
+	const string toString() const;
 
 	bool operator ==(const PublicKey &key) const;
 };

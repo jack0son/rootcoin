@@ -123,6 +123,10 @@ Bytes PublicKey::toBytes() const {
 	return Transaction::serializeCurvePoint(curvePoint);
 }
 
+const string PublicKey::toString() const {
+	return Utils::bytesToStr(toBytes());
+}
+
 PublicKey::PublicKey(const Bytes &keyBytes)
 	: curvePoint(*Transaction::deserializeCurvePoint(keyBytes)) {}
 
@@ -140,6 +144,9 @@ bool PublicKey::operator ==(const PublicKey &key) const {
 
 PrivateKey::PrivateKey(Uint256 val)
 	: value(val) {}
+
+PrivateKey::PrivateKey(const char* key)
+	: value(key) {}
 
 Bytes PrivateKey::toBytes() const {
 	Bytes key;

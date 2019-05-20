@@ -18,6 +18,7 @@ CRYPTO_LIB_FILE=bitcoincrypto
 LIB_PATH=$(CRYPTO_LIB)/$(CRYPTO_LIB_FILE)
 FILES=Transaction.cpp Wallet.cpp Blockchain.cpp Utils.cpp
 BC_FILES=Transaction.cpp Blockchain.cpp Utils.cpp BlockchainDemo.cpp
+WA_FILES=Transaction.cpp Blockchain.cpp Utils.cpp BlockchainDemo.cpp Wallet.cpp
 
 all: test.cpp $(CRYTPO_LIB_FILE)
 	g++ $(CXX_FLAGS) test.cpp -o test.out -I$(CRYPTO_LIB) -L$(CRYPTO_LIB) -l$(CRYPTO_LIB_FILE) 
@@ -27,3 +28,6 @@ test: TransactionDemo.cpp Transaction.cpp Utils.cpp $(CRYTPO_LIB_FILE)
 
 blockchain: $(BC_FILES) $(CRYTPO_LIB_FILE)
 	g++ $(CXX_FLAGS) $(BC_FILES) -o BlockchainDemo.out -I$(CRYPTO_LIB) -L$(CRYPTO_LIB) -l$(CRYPTO_LIB_FILE) 
+
+wallet: $(BC_FILES) $(CRYTPO_LIB_FILE)
+	g++ $(CXX_FLAGS) $(WA_FILES) -o Wallet.out -I$(CRYPTO_LIB) -L$(CRYPTO_LIB) -l$(CRYPTO_LIB_FILE) 

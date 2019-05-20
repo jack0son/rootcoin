@@ -126,16 +126,13 @@ bool Blockchain::getAddressBalance(const PublicKey &address) const {
 // @param sigs:		verify signature of each transaction
 int Blockchain::checkChainIntegrity(bool sigs) const { 
 	//std::unordered_map<PublicKey, int> balances;
-
-	bool valid = true;
-	vector<Block>::const_iterator prev;
-	vector<Block>::const_iterator it;
+	vector<Block>::const_iterator it, prev;
 
 	// @fix check first block
 	for(it = blocks.begin(); it != blocks.end(); prev = it, ++it) {
 		// Validate block header
 		if(it->getPrevHash() != prev->getHash()) {
-			valid = false;
+			return false;
 		}
 
 		/*if(it->myHash != it->getHash()) {
@@ -150,7 +147,7 @@ int Blockchain::checkChainIntegrity(bool sigs) const {
 			;;
 		}
 	}
-
+	return true;
 }
 
 const vector<Block>::const_iterator Blockchain::getTop() const {

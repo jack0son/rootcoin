@@ -1,27 +1,41 @@
 // RootCoin lib
-#include "Transaction.hpp";
+#include "Wallet.hpp"
 
-Wallet::Wallet() {
-
+Node::Node(Node&& other) 
+	: dummy(0)
+{
+	dummy = other.dummy;
 }
+Node::Node() : dummy(0) {}
+
+Wallet::Wallet(vector<Account> &accountList) 
+	: accounts(accountList), node() {}
+
+
+Wallet::Wallet() 
+	: node() {}
 
 Transaction Wallet::createTransaction(PublicKey to, int amount) {
-	Transaction tx(accountIt->PublicKey, to, amount);
+	Transaction tx(currentAcc->pub, to, amount);
 	return tx;
 }
 
 Transaction Wallet::createTransaction(string toAddress, int amount) {
 	assert(isValidAddress(toAddress));
-	assert(activeAccount());
+	assert(hasAccount());
 
-	Transaction tx(address.c_str(), to, amount);
+	Transaction tx(
+		currentAcc->pub.toString().c_str(),
+		toAddress.c_str(),
+		amount
+	);
 	return tx;
 }
 
 Signature Wallet::signTransaction(Transaction tx) {
-	assert(activeAccount());
+	assert(hasAccount());
 	// public: Signature sign(Uint256 privateKey 
-	return tx.sign(currentAcc->PrivateKey->get());
+	return tx.sign(currentAcc->priv.get());
 }
 
 void Wallet::publishTransaction(Transaction tx) {
@@ -31,21 +45,21 @@ void Wallet::publishTransaction(Transaction tx) {
 	// 4. Node publishes transaction
 }
 
-int Wallet::getBalance(CurvePoint publicKey) {
-	// 1. 
+int Wallet::getBalance(const PublicKey &publicKey) {
+	// 1. node.getBalance();
 
 }
 
-void Wallet::addAccount(Account& account) {
+void Wallet::addAccount(Account account) {
 	// 1. Generate random private key
 	// 2. Create account object
-	accounts.push(accounts);
+	accounts.push_back(account);
 	if(accounts.size() == 1) 
-		currentAccount = accounts.begin();
+		currentAcc = accounts.begin();
 }
 
-bool Wallet::activeAccount() {
-	if(currentAcc == accountList.end()) {
+bool Wallet::hasAccount() const{
+	if(currentAcc == accounts.end()) {
 		return false;
 	}
 
@@ -59,6 +73,7 @@ Account Wallet::createAccount() {
 }
 
 bool Wallet::isValidAddress(string address) {
+	// @fix this logic should sit within public key class
 	bool valid = true;
 	// KEY_SIZE in bytes, 2 chars per byte, plus 1 header byte
 	if(address.size() != ADDRESS_SIZE) {
@@ -70,12 +85,12 @@ bool Wallet::isValidAddress(string address) {
 const size_t Wallet::KEY_SIZE = Uint256::NUM_WORDS * 8;
 const size_t Wallet::ADDRESS_SIZE = (Wallet::KEY_SIZE + 1) * 2; 
 
-Account::Account(string privKey) {
-	priv = PrivateKey(privKey.c_str());
-	pub = PublicKey(CurvePoint::privateExponentToPublicPoint(priv.get()));
-}
+Account::Account(string privKey)
+	:	priv(privKey.c_str()),
+		pub(CurvePoint::privateExponentToPublicPoint(priv.get()))
+{}
 
-Account::Account(Uint256 privKey) :
-	PrivateKey(privKey),
-	PublicKey(CurvePoint::privateExponentToPublicPoint(privKey))
+Account::Account(Uint256 privKey)
+	:	priv(privKey), 
+		pub(CurvePoint::privateExponentToPublicPoint(privKey))
 {}
