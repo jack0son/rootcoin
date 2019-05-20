@@ -69,12 +69,13 @@ private:
 public:
 	Transaction createTransaction(PublicKey toKey, int amount);
 	Transaction createTransaction(string toAddress, int amount);
-	Signature signTransaction(Transaction tx);
+	Signature signTransaction(Transaction &tx);
 	void publishTransaction(Transaction tx);
 
 
 	/* Account Management */
 	void addAccount(Account account);
+	void addAccount(string privKey);
 	Account createAccount();
 	int getBalance(const PublicKey &publicKey);
 	void switchAccount();
@@ -83,8 +84,4 @@ public:
 
 	/* --- Helper Methods ---*/
 	static bool isValidAddress(string address);
-
-	static const size_t KEY_SIZE;
-	static const size_t ADDRESS_SIZE;
-
 };

@@ -17,6 +17,7 @@ Wallet::Wallet()
 
 Transaction Wallet::createTransaction(PublicKey to, int amount) {
 	Transaction tx(currentAcc->pub, to, amount);
+	signTransaction(tx);
 	return tx;
 }
 
@@ -29,10 +30,12 @@ Transaction Wallet::createTransaction(string toAddress, int amount) {
 		toAddress.c_str(),
 		amount
 	);
+
+	signTransaction(tx);
 	return tx;
 }
 
-Signature Wallet::signTransaction(Transaction tx) {
+Signature Wallet::signTransaction(Transaction &tx) {
 	assert(hasAccount());
 	// public: Signature sign(Uint256 privateKey 
 	return tx.sign(currentAcc->priv.get());
@@ -58,6 +61,15 @@ void Wallet::addAccount(Account account) {
 		currentAcc = accounts.begin();
 }
 
+void Wallet::addAccount(string privKey) {
+	// 1. Generate random private key
+	// 2. Create account object
+	Account account(privKey);
+	accounts.push_back(account);
+	if(accounts.size() == 1) 
+		currentAcc = accounts.begin();
+}
+
 bool Wallet::hasAccount() const{
 	if(currentAcc == accounts.end()) {
 		return false;
@@ -76,14 +88,12 @@ bool Wallet::isValidAddress(string address) {
 	// @fix this logic should sit within public key class
 	bool valid = true;
 	// KEY_SIZE in bytes, 2 chars per byte, plus 1 header byte
-	if(address.size() != ADDRESS_SIZE) {
+	if(address.size() != Transaction::ADDRESS_SIZE) {
 		valid = false;
 	}
 	return valid;
 }
 
-const size_t Wallet::KEY_SIZE = Uint256::NUM_WORDS * 8;
-const size_t Wallet::ADDRESS_SIZE = (Wallet::KEY_SIZE + 1) * 2; 
 
 Account::Account(string privKey)
 	:	priv(privKey.c_str()),

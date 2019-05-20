@@ -51,6 +51,7 @@ struct PrivateKey {
 
 	PrivateKey(const Uint256 val);
 	PrivateKey(const char* key);
+	//PrivateKey();
 	Bytes toBytes() const;
 	const Uint256 get() const;
 };
@@ -95,11 +96,10 @@ class Transaction {
 	// Calculate hash of serialized tx data (message hash for transaction contents)
 	public: Sha256Hash getHash() const;
 
-	
-	/*--- Helper methods ---*/
 	// Serialize transaction fields (for hash calculation)
 	public: vector<uint8_t> serialize() const;  
 	
+	/*--- Helper methods ---*/
 	public: static vector<uint8_t> serializeCurvePoint(CurvePoint curvePoint) ;
 	public: static unique_ptr<CurvePoint> deserializeCurvePoint(const vector<uint8_t> bytes) ; 
 	public: static unique_ptr<CurvePoint> deserializeCurvePoint(const char* curvePointStr) ;
@@ -107,5 +107,7 @@ class Transaction {
 	//public: static bool verify(char* from, char* to, Signature signature) ;
 
 	/*--- Public static constants ---*/
-	public: static Uint256 DEFAULT_NONCE;
+	public: static const Uint256 DEFAULT_NONCE;
+	public: static const size_t KEY_SIZE;
+	public: static const size_t ADDRESS_SIZE; 
 };

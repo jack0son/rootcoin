@@ -81,9 +81,7 @@ vector<uint8_t> Transaction::serializeCurvePoint(CurvePoint cp) {
 	cp.x.getBigEndianBytes(&serial[0]);
 	cp.y.getBigEndianBytes(&serial[size]);
 
-	//Utils::appendBytes(address, 
 	address.insert(address.end(), serial, serial + (size*2));
-	
 
 	return address;
 }
@@ -117,7 +115,9 @@ unique_ptr<CurvePoint> Transaction::deserializeCurvePoint(const char* curvePoint
 	return cp;
 }
 
-Uint256 Transaction::DEFAULT_NONCE = Uint256::ONE;
+const Uint256 Transaction::DEFAULT_NONCE = Uint256::ONE;
+const size_t Transaction::KEY_SIZE = Uint256::NUM_WORDS * 8;
+const size_t Transaction::ADDRESS_SIZE = (Transaction::KEY_SIZE + 1) * 2; 
 
 Bytes PublicKey::toBytes() const {
 	return Transaction::serializeCurvePoint(curvePoint);

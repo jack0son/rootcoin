@@ -26,6 +26,17 @@ void printTx(Transaction &tx) {
 	cout << "from:\t"; printBytes(tx.fromKey.toBytes());
 	cout << "\nto:\t"; printBytes(tx.toKey.toBytes());
 	cout << "\namnt:\t" << tx.amount;
+	cout << endl;
+
+}
+
+void printAcc(Account &a) {
+	using namespace std;
+
+	cout << " ~~~ Account Details ~~~ \n";
+	cout << "priv:\t"; printBytes(tx.fromKey.toBytes());
+	cout << "\npub:\t"; printBytes(tx.toKey.toBytes());
+	cout << endl;
 
 }
 
