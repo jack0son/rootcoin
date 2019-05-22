@@ -78,6 +78,7 @@ public:
 	void addAccount(string privKey);
 	Account createAccount();
 	int getBalance(const PublicKey &publicKey);
+	const PublicKey& getPublicKey() const;
 	void switchAccount();
 	bool hasAccount() const;
 

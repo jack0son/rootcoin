@@ -30,15 +30,6 @@ void printTx(Transaction &tx) {
 
 }
 
-void printAcc(Account &a) {
-	using namespace std;
-
-	cout << " ~~~ Account Details ~~~ \n";
-	cout << "priv:\t"; printBytes(tx.fromKey.toBytes());
-	cout << "\npub:\t"; printBytes(tx.toKey.toBytes());
-	cout << endl;
-
-}
 
 void print_bn(Uint256 bn) {
 	for(int i=0; i<Uint256::NUM_WORDS; i++) {

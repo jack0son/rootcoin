@@ -6,7 +6,7 @@ using Utils::appendBytesArr;
 Block::Block() 
 	: myHash(NULL_HASH), prevHash(NULL_HASH) {}
 
-Block::Block(vector<Transaction> txs, Uint256 a_nonce, Uint256 a_soln) 
+Block::Block(const vector<Transaction> txs, Uint256 a_nonce, Uint256 a_soln) 
 	: myHash(NULL_HASH), prevHash(NULL_HASH), txList(txs), nonce(a_nonce), soln(a_soln) {}
 
 void Block::addTransaction(Transaction &tx) {
@@ -23,8 +23,8 @@ Sha256Hash Block::calcHash() {
 	
 	// Header
 	appendBytesArr(block, prevHash.value, Sha256Hash::HASH_LEN);
-	appendBytes(block, Utils::Uint256Bytes(nonce));
-	appendBytes(block, Utils::Uint256Bytes(soln));
+	appendBytes(block, Utils::Uint256ToBytes(nonce));
+	appendBytes(block, Utils::Uint256ToBytes(soln));
 
 	// Transactions
 	appendBytes(block, reward.serialize());
@@ -101,25 +101,7 @@ bool Blockchain::isValidBlock(const Block &block) const {
 	return true;
 }
 
-bool Blockchain::getAddressBalance(const PublicKey &address) const {
-	int deb = 0; 
-	int cred = 0; 
 
-	// 1. Add all sends
-	for(const auto &block : blocks) {
-		for(const auto &tx : block.txList) {
-			if(tx.fromKey == address) {
-				deb += tx.amount;
-			}
-
-			if(tx.toKey == address) {
-				cred += tx.amount;
-			}
-		}
-	}
-
-	return cred - deb;
-}
 
 //#include<unordered_map>	
 // Validate that each block correctly links to the previous.
@@ -150,8 +132,55 @@ int Blockchain::checkChainIntegrity(bool sigs) const {
 	return true;
 }
 
+// @fix design should not treat genisis as a special case
+void Blockchain::genesis(const PublicKey &whale, const int supply) {
+	assert(chainIsEmpty());
+	Transaction genTx(Transaction(GAIA_PUB, whale, supply));
+	genTx.sign(GAIA_PRIV.get());
+	Block genesisBlock;
+	genesisBlock.addTransaction(genTx);
+	blocks.push_back(genesisBlock);
+}
+
+bool Blockchain::getAddressBalance(const PublicKey &address) const {
+	int deb = 0; 
+	int cred = 0; 
+
+	// 1. Add all sends
+	for(const auto &block : blocks) {
+		for(const auto &tx : block.txList) {
+			if(tx.fromKey == address) {
+				deb += tx.amount;
+			}
+
+			if(tx.toKey == address) {
+				cred += tx.amount;
+			}
+		}
+	}
+
+	return cred - deb;
+}
+
+bool Blockchain::chainIsEmpty() {
+	/*if(getTop() == blocks.begin()) {
+		return true;
+	}*/
+	return getTop() == blocks.begin();
+}
+
 const vector<Block>::const_iterator Blockchain::getTop() const {
 	vector<Block>::const_iterator last = blocks.end();
-	--last;
+	if(blocks.size() > 0)
+		--last;
 	return last;
 }
+
+//static const int Blockchain::TOTAL_SUPPLY;
+
+// @fix GAIA
+//const PublicKey Blockchain::GAIA(CurvePoint::privateExponentToPublicPoint(Uint256("38C2AB97F778D0E1E468B3A7EBEBD2FB1C45678B62DD01587CF54E298C71EC43")));
+const Uint256 dummy("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDBAAEDCE6AF48A03BBFD25E8CD0364141");
+
+const PrivateKey Blockchain::GAIA_PRIV(CurvePoint::ORDER);
+//const PublicKey Blockchain::GAIA_PUB(CurvePoint::privateExponentToPublicPoint(GAIA_PRIV.get()));

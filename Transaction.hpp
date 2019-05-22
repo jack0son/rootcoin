@@ -71,16 +71,16 @@ struct PublicKey {
 class Transaction {
 	/*--- Fields ---*/
 	public:
-		PublicKey fromKey;// sending address 
-		PublicKey toKey;  // recipient address
-		int amount;		// amount to send
+		PublicKey fromKey;	// sending address 
+		PublicKey toKey;	// recipient address
+		int amount;			// amount to send
 		std::unique_ptr<Signature> signature; // @fix why is this a pointer
 
 	
 	/*--- Constructors ---*/
 	Transaction(const Bytes &fromAddr, const Bytes &toAddr, int sendAmount);
 	Transaction(const char *fromAddr, const char *toAddr, int sendAmount);
-	Transaction(PublicKey &from, PublicKey &to, int sendAmount);
+	Transaction(const PublicKey &from, const PublicKey &to, int sendAmount);
 	Transaction(); // @fix should never be used
 	Transaction(const Transaction& transaction);
 

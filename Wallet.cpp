@@ -53,6 +53,10 @@ int Wallet::getBalance(const PublicKey &publicKey) {
 
 }
 
+const PublicKey& Wallet::getPublicKey() const {
+	return currentAcc->pub;
+}
+
 void Wallet::addAccount(Account account) {
 	// 1. Generate random private key
 	// 2. Create account object

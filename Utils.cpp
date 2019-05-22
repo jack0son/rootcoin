@@ -22,7 +22,7 @@ void Utils::appendBytes(Bytes &orig, const Bytes &toAppend) {
 	orig.insert(orig.end(), tmp.begin(), tmp.end());
 }	
 
-Bytes Utils::Uint256Bytes(const Uint256 &value) {
+Bytes Utils::Uint256ToBytes(const Uint256 &value) {
 	Bytes bytes;
 	size_t size = Uint256::NUM_WORDS * 4;
 	uint8_t serial[size]; 
@@ -43,6 +43,11 @@ string Utils::bytesToStr(const Bytes &orig) {
 		str += hexify<uint8_t>(b);
 	}
 	return str;
+}
+
+Bytes Utils::hashToBytes(Sha256Hash hash) {
+	Bytes bytes(hash.value, hash.value + Sha256Hash::HASH_LEN); 
+	return bytes;
 }
 
 Bytes Utils::hexStrToBytes(const char *str) {

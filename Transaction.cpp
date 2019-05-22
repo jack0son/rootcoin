@@ -8,7 +8,7 @@ Transaction::Transaction(const Bytes &fromAddr, const Bytes &toAddr, int sendAmo
 Transaction::Transaction(const char *fromAddr, const char *toAddr, int sendAmount)
 	: fromKey(fromAddr), toKey(toAddr), amount(sendAmount) {}
 
-Transaction::Transaction(PublicKey &from, PublicKey &to, int sendAmount)
+Transaction::Transaction(const PublicKey &from, const PublicKey &to, int sendAmount)
 	: fromKey(from), toKey(to), amount(sendAmount) {}
 
 Transaction::Transaction() :

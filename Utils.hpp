@@ -11,6 +11,7 @@
 #include <cassert>
 
 #include "Uint256.hpp"
+#include "Sha256Hash.hpp"
 
 using std::vector;
 using std::string;
@@ -24,10 +25,11 @@ typedef vector<uint8_t> Bytes;
 namespace Utils {
 	void appendBytes(Bytes &orig, const Bytes &toAppend);
 	void appendBytesArr(Bytes &orig, const uint8_t *toAppend, const size_t size);
-	Bytes hexStrToBytes(const char *str);
 	Bytes strBytes(const char *str);
-	Bytes Uint256Bytes(const Uint256 &value);
+	Bytes Uint256ToBytes(const Uint256 &value);
 	string bytesToStr(const Bytes &orig);
+	Bytes hashToBytes(Sha256Hash hash);
+	Bytes hexStrToBytes(const char *str);
 
 	template< typename B >
 		const std::string hexify(B i) {
