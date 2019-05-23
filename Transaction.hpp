@@ -82,6 +82,8 @@ class Transaction {
 	Transaction(const char *fromAddr, const char *toAddr, int sendAmount);
 	Transaction(const PublicKey &from, const PublicKey &to, int sendAmount);
 	Transaction(); // @fix should never be used
+	
+	// Copy constructor
 	Transaction(const Transaction& transaction);
 
 

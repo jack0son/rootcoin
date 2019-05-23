@@ -49,6 +49,8 @@ class Block {
 class Blockchain {
 	/* --- Members --- */
 	vector<Block> blocks;
+	const PrivateKey GAIA_PRIV;
+	const PublicKey GAIA_PUB;
 
 
 	/* --- Constructors --- */
@@ -58,8 +60,9 @@ class Blockchain {
 	/* --- Public instance methods --- */
 	bool addBlock(Block &block);
 	bool isValidBlock(const Block &block) const;
-	bool chainIsEmpty();
+	bool chainIsEmpty() const;
 	int checkChainIntegrity(bool sigs) const;
+	Block getBlock(size_t depth) const;
 
 	void genesis(const PublicKey &whale, const int supply = TOTAL_SUPPLY);
 
@@ -70,7 +73,7 @@ class Blockchain {
 
 	/* --- Helper methods --- */
 
+
+	/* --- Class constants --- */
 	static const int TOTAL_SUPPLY = 10000;
-	static const PrivateKey GAIA_PRIV;
-	static const PublicKey GAIA_PUB;
 };

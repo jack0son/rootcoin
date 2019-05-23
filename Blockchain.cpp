@@ -55,11 +55,14 @@ void Block::setHash(Sha256Hash previousBlockHash) {
 
 //____________________________________________________________________
 //
+
+	const char GAIA_PRIV_STR[65] = "0000000000000000000000000000000000000000000000000000000000000002";
+	const char GAIA_PUB_STR[129] = "c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee51ae168fea63dc339a3c58419466ceaeef7f632653266d0e1236431a950cfe52a";
 Blockchain::Blockchain() 
-	{}
+	: GAIA_PRIV(GAIA_PRIV_STR), GAIA_PUB(GAIA_PUB_STR) {}
 
 Blockchain::Blockchain(vector<Block> blockList) 
-	: blocks(blockList) {}
+	: GAIA_PRIV(GAIA_PRIV_STR), GAIA_PUB(GAIA_PUB_STR), blocks(blockList) {}
 
 bool Blockchain::addBlock(Block &block) {
 	// 1. Add link to chain
@@ -132,11 +135,18 @@ int Blockchain::checkChainIntegrity(bool sigs) const {
 	return true;
 }
 
+
+Block Blockchain::getBlock(size_t depth) const {
+	assert(depth < blocks.size());
+	return blocks[depth];
+}
+
 // @fix design should not treat genisis as a special case
 void Blockchain::genesis(const PublicKey &whale, const int supply) {
 	assert(chainIsEmpty());
-	Transaction genTx(Transaction(GAIA_PUB, whale, supply));
-	genTx.sign(GAIA_PRIV.get());
+
+	Transaction genTx(GAIA_PUB, whale, supply);
+	//genTx.sign(GAIA_PRIV.get());
 	Block genesisBlock;
 	genesisBlock.addTransaction(genTx);
 	blocks.push_back(genesisBlock);
@@ -162,7 +172,7 @@ bool Blockchain::getAddressBalance(const PublicKey &address) const {
 	return cred - deb;
 }
 
-bool Blockchain::chainIsEmpty() {
+bool Blockchain::chainIsEmpty() const {
 	/*if(getTop() == blocks.begin()) {
 		return true;
 	}*/
@@ -176,11 +186,7 @@ const vector<Block>::const_iterator Blockchain::getTop() const {
 	return last;
 }
 
-//static const int Blockchain::TOTAL_SUPPLY;
-
 // @fix GAIA
-//const PublicKey Blockchain::GAIA(CurvePoint::privateExponentToPublicPoint(Uint256("38C2AB97F778D0E1E468B3A7EBEBD2FB1C45678B62DD01587CF54E298C71EC43")));
-const Uint256 dummy("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDBAAEDCE6AF48A03BBFD25E8CD0364141");
-
-const PrivateKey Blockchain::GAIA_PRIV(CurvePoint::ORDER);
-//const PublicKey Blockchain::GAIA_PUB(CurvePoint::privateExponentToPublicPoint(GAIA_PRIV.get()));
+//const PublicKey Blockchain::GAIA_PUB("79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8");
+//const PrivateKey Blockchain::GAIA_PRIV("0000000000000000000000000000000000000000000000000000000000000001");
+//const Uint256 dummy("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDBAAEDCE6AF48A03BBFD25E8CD0364141");

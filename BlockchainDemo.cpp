@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <iterator>
 
 #include "Blockchain.hpp"
 #include "Wallet.hpp"
@@ -23,11 +24,15 @@ Blockchain instantiateBlockchain(Txs txList) {
 	;;
 }
 
+string Uint256ToStr(Uint256 val) {
+	return bytesToStr(Uint256ToBytes(val));
+}
+
 int main() {
 	const Uint256 dummy("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDBAAEDCE6AF48A03BBFD25E8CD0364141");
 	Uint256 GAIA_PRIV_INT(CurvePoint::ORDER);
 	GAIA_PRIV_INT.shiftRight1(true);
-	cout << bytesToStr(Uint256ToBytes(GAIA_PRIV_INT)) << endl;
+	cout << "ORDER >> 1 : " << bytesToStr(Uint256ToBytes(GAIA_PRIV_INT)) << endl;
 
 	vector<string> privKeys = {
 		"E9873D79C6D87DC0FB6A5778633389F4453213303DA61F20BD67FC233AA33262",
@@ -35,12 +40,47 @@ int main() {
 		"7A6D055110F4296A85E8122B32F87AD32A58CF9BB73435088102638D7DECE1F2"
 	};
 
+	Uint256 p1(privKeys[0].c_str());
+	Uint256 p2(privKeys[1].c_str());
+	Uint256 p3(privKeys[2].c_str());
+
+	Uint256 order(CurvePoint::ORDER);
+	 //assert(Uint256::ZERO < privExp);
+	 //assert(privExp < CurvePoint::ORDER);
+
+	
+	Uint256 two("0000000000000000000000000000000000000000000000000000000000000002");
+	//const PublicKey gaia(CurvePoint::privateExponentToPublicPoint(Uint256::ONE));
+	const PublicKey gaia(CurvePoint::privateExponentToPublicPoint(two));
+	cout << "GAIA priv:0x" << Uint256ToStr(two) <<endl;
+	cout << "GAIA pub: 0x" << gaia.toString() << endl;
+
+	cout << "Dummy:\t" << Uint256ToStr(dummy);
+	cout << endl;
+	cout << "ORDER:\t" << Uint256ToStr(order);
+	cout << "\nZERO:\t" << Uint256ToStr(Uint256::ZERO);
+	cout << "\nONE:\t" << Uint256ToStr(Uint256::ONE);
+
+	string r = (Uint256::ONE < CurvePoint::ORDER) ? "true" : "false";
+	cout << "\nONE < ORDER ? " << r << endl;
+	r = (Uint256::ZERO < Uint256::ONE) ? "true" : "false";
+	cout << " ZERO < ONE ? " << r << endl;
+	cout << endl;
+
 	Wallet wallet1;
 
 	for(string key : privKeys) {
 		cout << "Adding account using key: " << key << endl;
-		wallet1.addAccount(Account(key));
+		wallet1.addAccount(key);
+	cout << "\nDistance: " << wallet1.currentAcc - wallet1.accounts.begin();
+	cout << "Distance: " << std::distance(wallet1.currentAcc, wallet1.accounts.begin());
+	cout << "Size: " << wallet1.accounts.size() << endl;
+	cout << endl;
 	}
+	cout << endl;
+	cout << "\nAfter adding all keys to wallet1...";
+	cout << "\nDistance: " << std::distance(wallet1.currentAcc, wallet1.accounts.begin());
+	cout << "\nSizeof: " << sizeof(*wallet1.currentAcc);
 	cout << endl;
 
 	cout << "Wallet 1 - Current account::::\n";
@@ -73,12 +113,14 @@ int main() {
 	printBlock(block1);
 
 	cout << "Instantiating blockchain...\n";
+	//cout << "strlen: " << strlen(GAIA_PRIV_STR) << endl;
 	Blockchain blockchain;
 
-	cout << "Pushing genesis block...";
+	cout << "Pushing genesis block...\n";
 	blockchain.genesis(wallet1.currentAcc->pub);
 	//	blockchain.addBlock(block1);
 
+	cout << endl;
 	return 0;
 }
 

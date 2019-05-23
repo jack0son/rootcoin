@@ -45,6 +45,7 @@ struct Node {
 	Node(Node&& other);
 };
 
+
 class Wallet {
 
 	/* --- Constructors --- */
@@ -60,7 +61,7 @@ public:
 
 
 	/*--- Instance Members ---*/
-private:
+public:
 	vector<Account> accounts; 
 
 
