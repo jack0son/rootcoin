@@ -72,10 +72,10 @@ int main() {
 	for(string key : privKeys) {
 		cout << "Adding account using key: " << key << endl;
 		wallet1.addAccount(key);
-	cout << "\nDistance: " << wallet1.currentAcc - wallet1.accounts.begin();
-	cout << "Distance: " << std::distance(wallet1.currentAcc, wallet1.accounts.begin());
-	cout << "Size: " << wallet1.accounts.size() << endl;
-	cout << endl;
+		cout << "\nDistance: " << wallet1.currentAcc - wallet1.accounts.begin();
+		cout << "Distance: " << std::distance(wallet1.currentAcc, wallet1.accounts.begin());
+		cout << "Size: " << wallet1.accounts.size() << endl;
+		cout << endl;
 	}
 	cout << endl;
 	cout << "\nAfter adding all keys to wallet1...";
@@ -103,10 +103,15 @@ int main() {
 	printAcc(*wallet3.currentAcc);
 	cout << endl;
 
+	// Get some signed transactions
 	Transaction tx1 = wallet1.createTransaction(wallet3.currentAcc->pub, 10);
 	Transaction tx2 = wallet3.createTransaction(wallet2.currentAcc->pub, 10);
 	Transaction tx3 = wallet2.createTransaction(wallet1.currentAcc->pub, 10);
-	wallet1.signTransaction(tx1);
+	Signature sig1(wallet1.signTransaction(tx1));
+
+	cout << "Sig1: " << bytesToStr(sig1.toBytes());
+	cout << "\nSig1 ref: " << bytesToStr(tx1.signature->toBytes());
+	cout << endl;
 	//printTx(tx1);
 
 	Block block1(vector<Transaction>({tx1, tx2, tx3}), Transaction::DEFAULT_NONCE, Transaction::DEFAULT_NONCE); 
@@ -120,6 +125,7 @@ int main() {
 	blockchain.genesis(wallet1.currentAcc->pub);
 	//	blockchain.addBlock(block1);
 
+	cout << "\n D 0 N 3 ";
 	cout << endl;
 	return 0;
 }

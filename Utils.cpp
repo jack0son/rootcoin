@@ -1,15 +1,5 @@
 #include "Utils.hpp"
 
-void Utils::appendBytesArr(
-	Bytes &orig, 
-	const uint8_t *toAppend, 
-	const size_t size) 
-{
-	orig.insert(orig.end(), toAppend, toAppend + size);
-}	
-
-	
-// @fix improper use of smart pointers
 void Utils::appendBytes(Bytes &orig, const Bytes &toAppend) {
 	Bytes tmp;
 
@@ -22,33 +12,9 @@ void Utils::appendBytes(Bytes &orig, const Bytes &toAppend) {
 	orig.insert(orig.end(), tmp.begin(), tmp.end());
 }	
 
-Bytes Utils::Uint256ToBytes(const Uint256 &value) {
-	Bytes bytes;
-	size_t size = Uint256::NUM_WORDS * 4;
-	uint8_t serial[size]; 
-
-	value.getBigEndianBytes(serial); // fill serial with bytes from Uint256 val
-	bytes.insert(bytes.begin(), serial, serial + size);
-
-	return bytes;
-}
-
-Bytes Utils::strBytes(const char *str) {
-	return Bytes(str, str + std::strlen(str));
-}
-
-string Utils::bytesToStr(const Bytes &orig) {
-	string str = "";
-	for(auto &b : orig) {
-		str += hexify<uint8_t>(b);
-	}
-	return str;
-}
-
-Bytes Utils::hashToBytes(Sha256Hash hash) {
-	Bytes bytes(hash.value, hash.value + Sha256Hash::HASH_LEN); 
-	return bytes;
-}
+void Utils::appendBytesArr(Bytes &orig, const uint8_t *toAppend, const size_t size) {
+	orig.insert(orig.end(), toAppend, toAppend + size);
+}	
 
 Bytes Utils::hexStrToBytes(const char *str) {
 	Bytes result;
@@ -60,4 +26,51 @@ Bytes Utils::hexStrToBytes(const char *str) {
 		result.push_back(static_cast<std::uint8_t>(temp));
 	}
 	return result;
+}
+
+Bytes Utils::Uint256ToBytes(const Uint256 &value) {
+	Bytes bytes;
+	size_t size = Uint256::NUM_WORDS * 4;
+	uint8_t serial[size]; 
+
+	value.getBigEndianBytes(serial); // fill serial with bytes from Uint256 val
+	bytes.insert(bytes.begin(), serial, serial + size);
+
+	return bytes;
+}
+
+Bytes Utils::hashToBytes(const Sha256Hash &hash) {
+	return Bytes(hash.value, hash.value + Sha256Hash::HASH_LEN); 
+}
+
+string Utils::bytesToStr(const Bytes &orig) {
+	string str = "";
+	for(auto &b : orig) {
+		str += hexify<uint8_t>(b);
+	}
+	return str;
+}
+
+
+string Utils::toStr(const Sha256Hash& hash) {
+	return bytesToStr(hashToBytes(hash));
+}
+
+string Utils::toStr(const Uint256& value) {
+	return bytesToStr(Uint256ToBytes(value));
+}
+/*
+   string toStr(const Uint256& value);
+   string toStr(const CurvePoint& curvePoint);
+   */
+
+// @param length: number of bytes to display at either end
+string Utils::abridgeBytes(const Bytes &bytes, size_t length) {
+	assert(bytes.size() >= length*2);
+
+	Bytes l, r;
+	l.insert(l.begin(), bytes.begin(), bytes.begin()+ length);
+	r.insert(l.begin(), bytes.end() - length, bytes.end());
+
+	return "0x" + bytesToStr(l) + "..." + bytesToStr(r);
 }

@@ -19,17 +19,29 @@ using std::uint8_t;
 using std::unique_ptr;
 using std::shared_ptr;
 
+// @fix replace with alias
 typedef vector<uint8_t> Bytes;
-
 
 namespace Utils {
 	void appendBytes(Bytes &orig, const Bytes &toAppend);
 	void appendBytesArr(Bytes &orig, const uint8_t *toAppend, const size_t size);
-	Bytes strBytes(const char *str);
-	Bytes Uint256ToBytes(const Uint256 &value);
-	string bytesToStr(const Bytes &orig);
-	Bytes hashToBytes(Sha256Hash hash);
+
+	/* --- Types Casting Functions ---*/
 	Bytes hexStrToBytes(const char *str);
+	Bytes Uint256ToBytes(const Uint256 &value);
+	Bytes hashToBytes(const Sha256Hash &hash);
+	Bytes toBytes(const Uint256 &value);
+	Bytes toBytes(const Sha256Hash &hash);
+
+	// std::string Utils::toStr(const Type&)
+	string bytesToStr(const Bytes &orig);
+	string toStr(const Bytes &bytes);
+	string toStr(const Sha256Hash &hash);
+	string toStr(const Uint256 &value);
+	//string toStr(const CurvePoint& curvePoint);
+	
+	// @param length: number of bytes to display at either end
+	string abridgeBytes(const Bytes &bytes, size_t length);
 
 	template< typename B >
 		const std::string hexify(B i) {

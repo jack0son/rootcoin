@@ -140,16 +140,39 @@ Block Blockchain::getBlock(size_t depth) const {
 	assert(depth < blocks.size());
 	return blocks[depth];
 }
+#include <iostream>
+#include <sstream>
+#include <string>
+#include "Utils.hpp"
+std::string printTx(Transaction &tx) {
+
+	std::stringstream ss;
+
+	using Utils::bytesToStr;
+	using std::endl;
+	ss << " ~~~ Tx Details ~~~ \n";
+	ss << "from:\t" << bytesToStr(tx.fromKey.toBytes());
+	ss << "\nto:\t" << bytesToStr(tx.toKey.toBytes());
+	ss << "\namnt:\t" << tx.amount;
+	ss << "\nsig:\t" << bytesToStr(tx.signature->toBytes());
+	ss << endl;
+	return ss.str();
+}
 
 // @fix design should not treat genisis as a special case
 void Blockchain::genesis(const PublicKey &whale, const int supply) {
 	assert(chainIsEmpty());
 
 	Transaction genTx(GAIA_PUB, whale, supply);
-	//genTx.sign(GAIA_PRIV.get());
+	std::cout << "\t\t-------------- GENESIS TX --------------\n";
+	genTx.sign(GAIA_PRIV.get());
+	std::cout << printTx(genTx);
+	std::cout << "\t\t--------------^^^^^^^^^^^--------------\n";
 	Block genesisBlock;
 	genesisBlock.addTransaction(genTx);
+	std::cout << "Added transaction." << std::endl;
 	blocks.push_back(genesisBlock);
+	std::cout << "Pushed genesis block." << std::endl;
 }
 
 bool Blockchain::getAddressBalance(const PublicKey &address) const {

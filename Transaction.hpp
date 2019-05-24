@@ -79,7 +79,7 @@ class Transaction {
 	
 	/*--- Constructors ---*/
 	Transaction(const Bytes &fromAddr, const Bytes &toAddr, int sendAmount);
-	Transaction(const char *fromAddr, const char *toAddr, int sendAmount);
+	Transaction(const char *fromAddr, const char *toAddr, int sendAmount); // UNTESTED
 	Transaction(const PublicKey &from, const PublicKey &to, int sendAmount);
 	Transaction(); // @fix should never be used
 	
@@ -112,4 +112,8 @@ class Transaction {
 	public: static const Uint256 DEFAULT_NONCE;
 	public: static const size_t KEY_SIZE;
 	public: static const size_t ADDRESS_SIZE; 
+
+	// Static const factories --- (static initialization fiasco)
+	public: static size_t TX_SIZE();
+	
 };

@@ -62,24 +62,32 @@ void testTx(SignCase c) {
 	// Transaction built from byte strings
 	Bytes fromKey = Transaction::serializeCurvePoint(fromPoint);
 	Bytes toKey = Transaction::serializeCurvePoint(toPoint);
+	cout << "tx1:" << endl;
 	Transaction tx2(fromKey, toKey, amount);
+	cout << "tx2:" << endl;
 	Transaction tx(from.toBytes(), to.toBytes(), amount);
 
 	char *fromStr = new char[129];
 	char *toStr = new char[129];
 	
 	// Transaction built from string keys
-	Transaction tx3(
+	cout << "tx3:" << endl;
+	/*Transaction tx3(
 		strcat(strcat(fromStr, c.privateKey), c.msgHash),
 		strcat(strcat(toStr, c.expectedR), c.expectedS), 
 		amount
-	);
+	);*/
 
 	// Transaction built from public key objects
+	cout << "tx4:" << endl;
 	Transaction tx4(from, to, amount);
 
+	// Signing
+	Signature sig2 = tx2.sign(fromPrivKey.get());
 
 	printTx(tx);
+	cout << "\nSignature:\n\t";
+	printBytes(sig2.toBytes());
 	cout << "\n^^^ ^^^ ^^^ ^^^ ^^^\n\n";
 }
 

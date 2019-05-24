@@ -18,10 +18,14 @@ Transaction::Transaction(const Transaction& t) :
 	fromKey(t.fromKey), toKey(t.toKey), amount(t.amount), 
 	signature(new Signature(*t.signature)) {}
 
+#include <iostream>
 Signature Transaction::sign(Uint256 privateKey) {
 //Signature Transaction::sign(Uint256 privateKey, Uint256 nonce = DEFAULT_NONCE) {
 	// 1. Create the message hash
+	using std::cout;
+	using std::endl;
 	const Sha256Hash txHash = getHash();
+	std::cout << "\nTX HASH: " << Utils::toStr(txHash) << "\n";
 
 	// msgHas
 	//	- prev transaction ("amount")
@@ -31,6 +35,8 @@ Signature Transaction::sign(Uint256 privateKey) {
 
 	// 2. Call Ecdsa sign method
 	Ecdsa::sign(privateKey, txHash, DEFAULT_NONCE, r, s);	
+	cout << "r : " << Utils::toStr(r) << endl;
+	cout << "s : " << Utils::toStr(s) << endl;
 	
 	// 3. Store and return results
 	Signature sig(r, s);
@@ -64,8 +70,15 @@ vector<uint8_t> Transaction::serialize() const {
 	vector<uint8_t> serial;
 	
 	vector<uint8_t> keyBytes = toKey.toBytes();
+	Utils::appendBytes(keyBytes, fromKey.toBytes()); // save extra call to toBytes();
+	//Utils::appendBytes(serial, keyBytes);
+	//keyBytes.insert(keyBytes.end(), fromKey.toBytes().begin(), fromKey.toBytes().end());
 	serial.insert(serial.end(), keyBytes.begin(), keyBytes.end());
 	serial.push_back((uint8_t) amount);
+	//std::cout << "serial size: " << serial.size() << std::endl;
+	//std::cout << "TX_SIZE: " << TX_SIZE() << std::endl;
+
+	assert(serial.size() == TX_SIZE());
 
 	return serial;
 }
@@ -115,9 +128,16 @@ unique_ptr<CurvePoint> Transaction::deserializeCurvePoint(const char* curvePoint
 	return cp;
 }
 
-const Uint256 Transaction::DEFAULT_NONCE = Uint256::ONE;
+const Uint256 Transaction::DEFAULT_NONCE = Uint256("0000000000000000000000000000000000000000000000000000000000000002");
 const size_t Transaction::KEY_SIZE = Uint256::NUM_WORDS * 8;
-const size_t Transaction::ADDRESS_SIZE = (Transaction::KEY_SIZE + 1) * 2; 
+const size_t Transaction::ADDRESS_SIZE = Transaction::KEY_SIZE * 2; 
+//const size_t Transaction::ADDRESS_SIZE = (Transaction::KEY_SIZE + 1) * 2; 
+
+size_t Transaction::TX_SIZE() {
+	// @fix use sizeof uint8_t ?
+	static const size_t TX_SIZE = KEY_SIZE * 2 + 1;
+	return TX_SIZE;
+}
 
 Bytes PublicKey::toBytes() const {
 	return Transaction::serializeCurvePoint(curvePoint);
