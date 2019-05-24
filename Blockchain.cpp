@@ -79,6 +79,8 @@ bool Blockchain::addBlock(Block &block) {
 }
 
 bool Blockchain::isValidBlock(const Block &block) const {
+	using std::cout;
+	using std::endl;
 	// Block Size
 	if(block.txList.size() > Block::MAX_TX) {
 		return false;
@@ -86,13 +88,27 @@ bool Blockchain::isValidBlock(const Block &block) const {
 
 	// 1. Verify transactions
 	for(const auto &tx : block.txList) {
+		// In order of computational cost
+		if(tx.amount <= 0 ) {
+			// This tx should just be ejected from the block instead of
+			// invalidating the block.
+			cout << "~~ BLOCK VALIDATION: empty tx from " +  Utils::abridgeBytes(tx.fromKey.toBytes()) << endl;
+			return false;
+		}
 		// Verify signature
-		if(!tx.verify(*tx.signature)) {
+		if(!tx.verify(tx.signature)) {
+			cout << "~~ BLOCK VALIDATION: failed signature verification." << endl;
+
 			return false;
 		}
 
 		// Verify balance
-		if(tx.amount <= getAddressBalance(tx.fromKey)) {
+		int bal = getAddressBalance(tx.fromKey);
+		//cout << "BAL? " << (bal > 50) << endl;
+		//cout << "Calc'd balance: " << bal << ", " << Utils::abridgeBytes(tx.fromKey.toBytes()) << endl;
+		if(tx.amount > bal) {
+		//if(tx.amount <= getAddressBalance(tx.fromKey)) {
+			cout << "~~ BLOCK VALIDATION: insuff. funds in tx from " +  Utils::abridgeBytes(tx.fromKey.toBytes()) << endl;
 			return false;
 		}
 
@@ -154,7 +170,7 @@ std::string printTx(Transaction &tx) {
 	ss << "from:\t" << bytesToStr(tx.fromKey.toBytes());
 	ss << "\nto:\t" << bytesToStr(tx.toKey.toBytes());
 	ss << "\namnt:\t" << tx.amount;
-	ss << "\nsig:\t" << bytesToStr(tx.signature->toBytes());
+	ss << "\nsig:\t" << bytesToStr(tx.signature.toBytes());
 	ss << endl;
 	return ss.str();
 }
@@ -164,22 +180,22 @@ void Blockchain::genesis(const PublicKey &whale, const int supply) {
 	assert(chainIsEmpty());
 
 	Transaction genTx(GAIA_PUB, whale, supply);
-	std::cout << "\t\t-------------- GENESIS TX --------------\n";
 	genTx.sign(GAIA_PRIV.get());
-	std::cout << printTx(genTx);
-	std::cout << "\t\t--------------^^^^^^^^^^^--------------\n";
 	Block genesisBlock;
 	genesisBlock.addTransaction(genTx);
-	std::cout << "Added transaction." << std::endl;
+	genesisBlock.setHash(NULL_HASH);
 	blocks.push_back(genesisBlock);
 	std::cout << "Pushed genesis block." << std::endl;
 }
 
-bool Blockchain::getAddressBalance(const PublicKey &address) const {
+int Blockchain::getAddressBalance(const PublicKey &address) const {
+	using std::cout;
+	using std::endl;
 	int deb = 0; 
 	int cred = 0; 
 
 	// 1. Add all sends
+	int count;
 	for(const auto &block : blocks) {
 		for(const auto &tx : block.txList) {
 			if(tx.fromKey == address) {
@@ -202,7 +218,7 @@ bool Blockchain::chainIsEmpty() const {
 	return getTop() == blocks.begin();
 }
 
-const vector<Block>::const_iterator Blockchain::getTop() const {
+vector<Block>::const_iterator Blockchain::getTop() const {
 	vector<Block>::const_iterator last = blocks.end();
 	if(blocks.size() > 0)
 		--last;

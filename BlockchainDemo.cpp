@@ -12,13 +12,14 @@ using std::endl;
 using Utils::bytesToStr;
 using Utils::hashToBytes;
 using Utils::Uint256ToBytes;
+using Utils::abridgeBytes;
 
 typedef vector<Transaction> Txs;
 
 void printTx(Transaction &tx);
-void printBlock(Block &block);
+void printBlock(const Block &block);
 void printAcc(Account &a);
-string abridgeBytes(Bytes bytes, size_t length = 4);
+string balanceStr(Blockchain &blockchain, PublicKey address);
 
 Blockchain instantiateBlockchain(Txs txList) {
 	;;
@@ -105,25 +106,35 @@ int main() {
 
 	// Get some signed transactions
 	Transaction tx1 = wallet1.createTransaction(wallet3.currentAcc->pub, 10);
-	Transaction tx2 = wallet3.createTransaction(wallet2.currentAcc->pub, 10);
+	//Transaction tx2 = wallet3.createTransaction(wallet2.currentAcc->pub, 10);
 	Transaction tx3 = wallet2.createTransaction(wallet1.currentAcc->pub, 10);
-	Signature sig1(wallet1.signTransaction(tx1));
 
-	cout << "Sig1: " << bytesToStr(sig1.toBytes());
-	cout << "\nSig1 ref: " << bytesToStr(tx1.signature->toBytes());
-	cout << endl;
-	//printTx(tx1);
-
-	Block block1(vector<Transaction>({tx1, tx2, tx3}), Transaction::DEFAULT_NONCE, Transaction::DEFAULT_NONCE); 
+	// Create a block
+	Block block1(vector<Transaction>({tx1, tx3}), Transaction::DEFAULT_NONCE, Transaction::DEFAULT_NONCE); 
 	printBlock(block1);
 
-	cout << "Instantiating blockchain...\n";
-	//cout << "strlen: " << strlen(GAIA_PRIV_STR) << endl;
+	cout << " ... Instantiating blockchain.\n";
 	Blockchain blockchain;
 
-	cout << "Pushing genesis block...\n";
+	cout << " ... Summoning genesis block.\n";
 	blockchain.genesis(wallet1.currentAcc->pub);
-	//	blockchain.addBlock(block1);
+	printBlock(*blockchain.getTop());
+	cout << balanceStr(blockchain, wallet1.currentAcc->pub) << endl; 
+
+	cout << "\n ... Pushing first network block.\n";
+	blockchain.addBlock(block1);
+	printBlock(*blockchain.getTop());
+	cout << balanceStr(blockchain, wallet1.currentAcc->pub) << endl; 
+	cout << balanceStr(blockchain, wallet3.currentAcc->pub) << endl; 
+	
+	cout << "\n ... Pushing second network block.\n";
+	tx1 = wallet3.createTransaction(wallet1.currentAcc->pub, 5);
+	tx3 = wallet1.createTransaction(wallet2.currentAcc->pub, 7);
+	Block block2(vector<Transaction>({tx1, tx3}), Transaction::DEFAULT_NONCE, Transaction::DEFAULT_NONCE); 
+	blockchain.addBlock(block1);
+	printBlock(*blockchain.getTop());
+	cout << balanceStr(blockchain, wallet1.currentAcc->pub) << endl; 
+	cout << balanceStr(blockchain, wallet3.currentAcc->pub) << endl; 
 
 	cout << "\n D 0 N 3 ";
 	cout << endl;
@@ -136,8 +147,15 @@ Txs getDummyTxs() {
 
 }
 
+string balanceStr(Blockchain &blockchain, PublicKey address) {
+	string result = "\tcurrent ballance - " + abridgeBytes(address.toBytes())
+		+ "\tBalance: " + std::to_string(blockchain.getAddressBalance(address));
+	
+	return result;
+}
 
-string txSummary(Transaction &tx) {
+
+string txSummary(const Transaction &tx) {
 	string result;
 	result += "from: " + abridgeBytes(tx.fromKey.toBytes());
 	result += ",  to: " + abridgeBytes(tx.toKey.toBytes());
@@ -146,32 +164,17 @@ string txSummary(Transaction &tx) {
 	return result;
 }
 
-// @param length: number of bytes to display at either end
-string abridgeBytes(Bytes bytes, size_t length) {
-	Bytes l, r;
-	Bytes::iterator front = bytes.begin();
-	Bytes::iterator back = bytes.end();
-	--back;
-
-	for(int i=0; i<length; i++, ++front, --back) {
-		l.push_back(*front);
-		r.insert(r.begin(), *back);
-	}
-
-	return "0x" + bytesToStr(l) + "..." + bytesToStr(r);
-}
-
 void printTx(Transaction &tx) {
 
 	cout << " ~~~ Tx Details ~~~ \n";
 	cout << "from:\t" << bytesToStr(tx.fromKey.toBytes());
 	cout << "\nto:\t" << bytesToStr(tx.toKey.toBytes());
 	cout << "\namnt:\t" << tx.amount;
-	cout << "\nsig:\t" << bytesToStr(tx.signature->toBytes());
+	cout << "\nsig:\t" << bytesToStr(tx.signature.toBytes());
 	cout << endl;
 }
 
-void printBlock(Block &block) {
+void printBlock(const Block &block) {
 	char d = 176;
 	string bookend = "_-_-_-_-_-_-_-_-_-_-_-_";
 	string head = "";
@@ -182,7 +185,7 @@ void printBlock(Block &block) {
 		summary += "     " + txSummary(tx) + "\n";	
 	}
 
-	cout << head << endl;
+	cout << endl << head << endl;
 	//cout << "myHash:\t" << abridgeBytes(hashToBytes(block.getHash()));
 	//cout << "\nprevHash:\t" << abridgeBytes(hashToBytes(block.getPrevHash()));
 	cout << "blockHash:\t" << bytesToStr(hashToBytes(block.getHash()));

@@ -67,10 +67,19 @@ string Utils::toStr(const Uint256& value) {
 // @param length: number of bytes to display at either end
 string Utils::abridgeBytes(const Bytes &bytes, size_t length) {
 	assert(bytes.size() >= length*2);
+	Bytes::const_iterator front = bytes.begin();
+	Bytes::const_iterator back = bytes.end();
+	--back;
 
 	Bytes l, r;
-	l.insert(l.begin(), bytes.begin(), bytes.begin()+ length);
-	r.insert(l.begin(), bytes.end() - length, bytes.end());
+	// @fix use insert operation O(1)
+	//l.insert(l.begin(), bytes.begin(), bytes.begin() + length);
+	//r.insert(l.begin(), back - length, back);
+	//r.insert(l.begin(), bytes.end() - length, bytes.end());
+	for(int i=0; i<length; i++, ++front, --back) {
+		l.push_back(*front);
+		r.insert(r.begin(), *back);
+	}
 
 	return "0x" + bytesToStr(l) + "..." + bytesToStr(r);
 }

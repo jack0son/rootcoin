@@ -74,8 +74,7 @@ class Transaction {
 		PublicKey fromKey;	// sending address 
 		PublicKey toKey;	// recipient address
 		int amount;			// amount to send
-		std::unique_ptr<Signature> signature; // @fix why is this a pointer
-
+		Signature signature; // @fix why is this a pointer
 	
 	/*--- Constructors ---*/
 	Transaction(const Bytes &fromAddr, const Bytes &toAddr, int sendAmount);
@@ -93,7 +92,7 @@ class Transaction {
 	// how to verify API isn't storing PK?
 	
 	// Verify transaction origin
-	public: bool verify(Signature &sig) const; 
+	public: bool verify(const Signature &sig) const; 
 	
 	// Calculate hash of serialized tx data (message hash for transaction contents)
 	public: Sha256Hash getHash() const;

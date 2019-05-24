@@ -67,9 +67,9 @@ class Blockchain {
 	void genesis(const PublicKey &whale, const int supply = TOTAL_SUPPLY);
 
 	// Blockchain State Accessors
-	bool getAddressBalance(const PublicKey &address) const;
+	int getAddressBalance(const PublicKey &address) const;
 
-	private: const vector<Block>::const_iterator getTop() const;
+	public: vector<Block>::const_iterator getTop() const;
 
 	/* --- Helper methods --- */
 

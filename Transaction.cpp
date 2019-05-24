@@ -16,7 +16,8 @@ Transaction::Transaction() :
 
 Transaction::Transaction(const Transaction& t) :
 	fromKey(t.fromKey), toKey(t.toKey), amount(t.amount), 
-	signature(new Signature(*t.signature)) {}
+	//signature(new Signature(*t.signature)) {}
+	signature(t.signature) {}
 
 #include <iostream>
 Signature Transaction::sign(Uint256 privateKey) {
@@ -25,7 +26,7 @@ Signature Transaction::sign(Uint256 privateKey) {
 	using std::cout;
 	using std::endl;
 	const Sha256Hash txHash = getHash();
-	std::cout << "\nTX HASH: " << Utils::toStr(txHash) << "\n";
+	//std::cout << "\nTX HASH: " << Utils::toStr(txHash) << "\n";
 
 	// msgHas
 	//	- prev transaction ("amount")
@@ -35,17 +36,18 @@ Signature Transaction::sign(Uint256 privateKey) {
 
 	// 2. Call Ecdsa sign method
 	Ecdsa::sign(privateKey, txHash, DEFAULT_NONCE, r, s);	
-	cout << "r : " << Utils::toStr(r) << endl;
-	cout << "s : " << Utils::toStr(s) << endl;
+	//cout << "r : " << Utils::toStr(r) << endl;
+	//cout << "s : " << Utils::toStr(s) << endl;
 	
 	// 3. Store and return results
 	Signature sig(r, s);
-	signature = unique_ptr<Signature>(new Signature(r, s));
+	signature = sig;
+	//signature = unique_ptr<Signature>(new Signature(r, s));
 
 	return sig;
 }
 
-bool Transaction::verify(Signature &sig) const {
+bool Transaction::verify(const Signature &sig) const {
 	// 1. Create the message hash
 	const Sha256Hash txHash = getHash();
 	// bool Ecdsa::verify(const CurvePoint &publicKey, const Sha256Hash &msgHash, const Uint256 &r, const Uint256 &s)

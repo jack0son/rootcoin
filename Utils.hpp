@@ -41,7 +41,7 @@ namespace Utils {
 	//string toStr(const CurvePoint& curvePoint);
 	
 	// @param length: number of bytes to display at either end
-	string abridgeBytes(const Bytes &bytes, size_t length);
+	string abridgeBytes(const Bytes &bytes, size_t length = 4);
 
 	template< typename B >
 		const std::string hexify(B i) {
