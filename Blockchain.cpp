@@ -122,7 +122,6 @@ bool Blockchain::isValidBlock(const Block &block) const {
 
 
 
-//#include<unordered_map>	
 // Validate that each block correctly links to the previous.
 // @param sigs:		verify signature of each transaction
 int Blockchain::checkChainIntegrity(bool sigs) const { 
@@ -156,10 +155,7 @@ Block Blockchain::getBlock(size_t depth) const {
 	assert(depth < blocks.size());
 	return blocks[depth];
 }
-#include <iostream>
-#include <sstream>
-#include <string>
-#include "Utils.hpp"
+
 std::string printTx(Transaction &tx) {
 
 	std::stringstream ss;
@@ -175,7 +171,7 @@ std::string printTx(Transaction &tx) {
 	return ss.str();
 }
 
-// @fix design should not treat genisis as a special case
+// @fix design should not treat genesis as a special case
 void Blockchain::genesis(const PublicKey &whale, const int supply) {
 	assert(chainIsEmpty());
 

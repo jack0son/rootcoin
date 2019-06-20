@@ -29,6 +29,10 @@ string Uint256ToStr(Uint256 val) {
 	return bytesToStr(Uint256ToBytes(val));
 }
 
+// Demonstrate the Block data structure using a simple linear chain of blocks
+// TODO:
+//		- traversing blocks using longest chain
+//		- block and transaction broadcasting
 int main() {
 	const Uint256 dummy("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDBAAEDCE6AF48A03BBFD25E8CD0364141");
 	Uint256 GAIA_PRIV_INT(CurvePoint::ORDER);

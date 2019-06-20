@@ -48,7 +48,7 @@ class Block {
 
 class Blockchain {
 	/* --- Members --- */
-	vector<Block> blocks;
+	vector<Block> blocks; // Replace with DAG structure one P2P built
 	const PrivateKey GAIA_PRIV;
 	const PublicKey GAIA_PUB;
 
